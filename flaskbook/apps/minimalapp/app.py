@@ -1,6 +1,6 @@
 # 이메일 주소 형식 체크용 validate_email과 EmailNotValidError를 import
 from email_validator import validate_email, EmailNotValidError
-from flask import Flask, render_template, url_for, current_app, g, request, redirect, flash
+from flask import Flask, render_template, url_for, current_app, g, request, redirect, flash, make_response, session
 import logging
 from flask_debugtoolbar import DebugToolbarExtension
 import os
@@ -10,6 +10,7 @@ from flask_mail import Mail, Message
 # flask 클래스를 인스턴스화한다
 # 앱에 경로를 인식해야 .env가 밖에서 인식
 # template_folder를 인식못하면 app객체안에서 지정한다
+
 app = Flask(r'C:\Users\mark8\OneDrive\바탕 화면\flask_project\flaskbook\apps\minimalapp\app.py',
             template_folder = r'C:\Users\mark8\OneDrive\바탕 화면\flask_project\flaskbook\apps\minimalapp\templates')
 # 세션을 사용하려면 세션 정보 보안을위해 secre_key값 설정
@@ -72,6 +73,18 @@ def show_name(name):
 @app.route('/contact')
 # 문의 폼 화면을 반환하는 contact 엔드포인트를 만든다
 def contact():
+    # 응답 객체를 취득
+    response = make_response(render_template('contact.html'))
+
+    # 쿠키를 설정
+    response.set_cookie('flaskbook key', 'flaskbook value')
+
+    # 세션 설정
+    session['username'] = 'AK'
+
+    # 응답 오브젝트를 반환
+    return response
+
     # 데이터를 받고 html에 데이터를 그린다
     return render_template('contact.html')
    
