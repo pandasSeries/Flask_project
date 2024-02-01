@@ -1,0 +1,17 @@
+<!-- 대문 페이지에 사용될 home.html 생성 -->
+<!-- 먼저 기본 테마가 될 템플릿을 상속 받는다 -->
+{% extends "base.html" %}
+{% block title %}
+Title - SignIn
+{% endblock %}
+{% block description %}
+Description - SignIn <br>
+Welcome! 
+{% if user %}
+{{"Dear. " + user}}
+{% elif not user %}
+"Dear Anonymous"
+{% else %}
+"Hacker"
+{% endif %}
+{% endblock %}
