@@ -1,6 +1,13 @@
 # request로 POST로 요청된 값 확인
-from flask import Blueprint, render_template, request, flash
-
+from flask import Blueprint, render_template, request, flash, redirect, url_for
+# 회원가입 로직 처리
+# 회원가입페이지(signup)에서 전달 받은 값을 db에 저장
+# auth.py에서 유효성 검사를 모두 통과하면 가입
+from .models import User
+# hash 적용한 비밀번호 구현
+# 비밀번호 해싱을 위해 import
+# user 인스턴스 생성시 password를 해싱
+from werkzeug.security import generate_password_hash, check_password_hash
 # blueprint를 이용하면 플라스크 App의 모든 url을 한곳에서 관리 하지 않아도 된다
 # 이곳저곳에 뿌려진 url의 정의를 수집하여 한곳으로 모아준다
 auth = Blueprint('auth', __name__)
@@ -35,6 +42,16 @@ def sign_up():
             flash('비밀번호가 너무 짧습니다', category='error')
         else:
             flash('회원가입 완료.', category='success') # Create User -> DB
+            # Create User > DB
+            # 모든 유효성 검사가 끝난 곳에 새로운 user 인스턴스 생성
+            
+            new_user = User(email=email, nickname=nickname, password=generate_password_hash(password1, method = 'sha256'))
+            # 생성한 User 인스턴스를 추가
+            db.session.add(new_user)
+            # db는 commit하기 전에는 임시상태
+            # commit을 해주어서 최종 반영
+            db.session.commit()
+            return redirect(url_for('views.home'))
     
     return render_template('sign_up.html') # 클라이언트 요청에 응답할 데이터를 return 시키는 함수 생성
 

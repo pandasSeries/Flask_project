@@ -6,6 +6,7 @@
 # note
 #   id : 메모 데이터를 구분하기위한 값 기본키, title, content, datetime
 from . import db
+from sqlalchemy.sql import func
 # flask-login은 Flask에 대한 사용자 세션관리 제공
 # 로그인, 로그아웃 및 장기간에 걸친 사용자 세션 기억과 같은 일반적인 작업 처리
 # 세션에 활성 사용자의 id를 저장하고 쉽게 로그인 및 로그아웃
@@ -14,7 +15,7 @@ from . import db
 # 쿠키 도둑이 사용자의 세션을 도난하지 않도록 보호
 # 나중에 Flask-Principal 또는 기타 인증 확장과 통합할수있다
 from flask_login import UserMixin
-
+from datetime import datetime
 
 # 하나의 유저에 여러개의 메모 존재 1:다 relationship
 # define User model
