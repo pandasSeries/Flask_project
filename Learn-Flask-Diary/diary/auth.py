@@ -4,6 +4,13 @@ from flask import Blueprint, render_template, request, flash, redirect, url_for
 # 회원가입페이지(signup)에서 전달 받은 값을 db에 저장
 # auth.py에서 유효성 검사를 모두 통과하면 가입
 from .models import User
+
+# UserMixin, flask_login을 통해 현재 로그인과 관련된 기능(로그인, 로그아웃, 현사용자 정보 접근 사용0)을 구현
+# flask-login 모듈 활용으로 로그인 구현
+from flask_login import login_user, login_required, logout_user, current_user
+
+
+
 # hash 적용한 비밀번호 구현
 # 비밀번호 해싱을 위해 import
 # user 인스턴스 생성시 password를 해싱
@@ -51,16 +58,49 @@ def sign_up():
             # db는 commit하기 전에는 임시상태
             # commit을 해주어서 최종 반영
             db.session.commit()
+
+            # auto login
+            login_user(new_user, remember = True)
+            flash('회원가입 완료', category = 'success') # create user -> db
+            
             return redirect(url_for('views.home'))
     
     return render_template('sign_up.html') # 클라이언트 요청에 응답할 데이터를 return 시키는 함수 생성
 
+# 로그아웃은 logout_user()사용
+# 로그아웃도 여러번 안하고 로그인도 안했는데 로그아웃 페이지에 접근할 이유 없다
 @auth.route('/logout') # url 끝부분(end point)를 인자로 입력
 def logout():
-    return render_template('logout.html') # 클라이언트 요청에 응답할 데이터를 return 시키는 함수 생성
+    logout_user()
+    # html 아닌 함수로 가려면 redirect
+    return redirect(url_for('auth.sign_in')) # 클라이언트 요청에 응답할 데이터를 return 시키는 함수 생성
 
 @auth.route('/sign-in',methods=['GET', 'POST']) # url 끝부분(end point)를 인자로 입력
 def sign_in():
+    # login
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password1 = request.form.get('password1')
+
+        # Search user in database and compare password
+        user = User.query.filter_by(email=email).first()
+        if user:
+            if check_password_hash(user.password, password1):
+                flash('로그인 완료', category='success')
+                # 로그인 처리 진행
+                # remember는 세션이 만료된후 사용자를 기억할지 여부
+                # True일 경우 1 사용자가 인터넷 사용기록이나 세션을 지울때 까지 이사용자가 로그인한것 기억
+                # 2 플라스크 세션에 저장
+                # 3 플라스크 웹서버를 다시 시작하면 기억된 정보는 사라진다
+                login_user(user, remember=True)
+                
+                # post 통신이니 redirect()한다
+                return redirect(url_for('views.home'))
+            else:
+                flash('비밀번호가 다릅니다', category='error')
+        else:
+            flash('해당 이메일 정보가 없습니다', category='error')
+    return render_template('sign_in.html')
     # 진자로 user변수를 사용할수 있다
     # 변수명은 user로 할필요없이 짓고 싶은대로 지으면 된다
     return render_template('sign_in.html', user = 'Mark') # 클라이언트 요청에 응답할 데이터를 return 시키는 함수 생성

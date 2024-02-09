@@ -7,6 +7,10 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from os import path
+# flask-login을 Flask App에 적용하기
+# flask-login의 세팅들이 실제로 Flask App에 동작하기위해 추가
+from flask_login import LoginManager
+
 db = SQLAlchemy()
 DB_NAME = 'database.db'
 def create_app():
@@ -32,6 +36,13 @@ def create_app():
     with app.app_context():
         db.create_all()
 
+    # flask-login 적용
+    login_manager = LoginManager()
+    login_manager.login_view = 'auth.sign_in'
+    login_manager.init_app(app)
+    @login_manager.user_loader
+    def load_user(id):
+        return User.query.get(id) # primary_key
     return app
 
 # 데이터 베이스 생성 함수

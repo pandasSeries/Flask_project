@@ -1,7 +1,8 @@
 # url접속시 위에 만들어진 템플릿 html을 되돌려주도록 만든다
 # render_template이랑 같이써서 html을 리턴
 from flask import Blueprint, render_template
-
+# views.py에도 flask-login을 참조
+from flask_login import login_required, current_user
 # blueprint를 이용하면 플라스크 App의 모든 url을 한곳에서 관리 하지 않아도 된다
 # 이곳저곳에 뿌려진 url의 정의를 수집하여 한곳으로 모아준다
 views = Blueprint('views', __name__)
